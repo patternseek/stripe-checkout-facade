@@ -1,0 +1,23 @@
+{
+    "name": "patternseek/stripe-checkout-facade",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PatternSeek\\StripeCheckoutFacade\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tolan Blundell",
+            "email": "tolan@patternseek.net"
+        }
+    ],
+    "require": {
+        "stripe/stripe-php": "^15.3",
+        "ext-mbstring": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "psr/log": "^3.0"
+    }
+}

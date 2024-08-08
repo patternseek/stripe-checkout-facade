@@ -1,0 +1,27 @@
+{
+    "name": "patternseek/stripe-checkout-facade-demo-app",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "PatternSeek\\StripeCheckoutFacadeDemoApp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Tolan Blundell",
+            "email": "tolan@patternseek.net"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../"
+        }
+    ],
+
+    "require": {
+        "patternseek/stripe-checkout-facade": "@dev",
+        "monolog/monolog": "^3.7"
+    }
+}
