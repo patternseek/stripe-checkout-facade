@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace PatternSeek\StripeCheckoutFacade;
 
 use Exception;
-use Google\Service\Monitoring\Custom;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutLocale;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutMode;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
