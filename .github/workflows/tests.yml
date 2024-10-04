@@ -45,7 +45,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
-      - name: Install dependencies
+      - name: Test install dependencies
         run: composer install --no-progress
         
       - name: Run server and tests
@@ -57,6 +57,7 @@ jobs:
           docker run -d --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
           sleep 5
           cd demo-app 
+          composer install --no-progress
           php -S 0.0.0.0:4242 --docroot=web & 
           cd .. 
           ./vendor/bin/phpunit tests
