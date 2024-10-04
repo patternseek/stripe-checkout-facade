@@ -1,0 +1,50 @@
+name: Composer and test
+
+on:
+  pull_request: # on PR creation and update
+  push:
+    branches:
+      - develop # triggers on PR merge
+    tags:
+      - '*' # on new tags 
+  workflow_dispatch: # manual
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        # Map port 8080 on the Docker host to port 80 on the nginx container
+        ports:
+          - 4444:4444
+          - 7900:7900
+        shm-size: 2g
+        add-host: host.docker.internal:host-gateway
+    
+    steps:
+      # Check out target branch to generate phpstan baseline 
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.base_ref }}
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: pecl
+          extensions: protobuf, apcu
+          coverage: xdebug
+
+      - name: Cache Composer packages
+        id: composer-cache-target
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install dependencies
+        run: composer install --no-progress

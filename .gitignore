@@ -1,2 +1,4 @@
 /demo-app/vendor/
 /vendor/
+/demo-app/.env
+/tests/.env

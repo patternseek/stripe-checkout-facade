@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../vendor/autoload.php';
 
-
+use Dotenv\Dotenv;
 use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
@@ -12,16 +12,17 @@ use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
 use Psr\Log\LoggerInterface;
 
-// Config
-$config = parse_ini_file(__DIR__.'/../conf/demo.ini');
+// Config via dotenv
+$dotenv = Dotenv::createImmutable(__DIR__.'/../');
+$dotenv->safeLoad();
 
-$apiSecretKey = $config['apiSecretKey'];
-$apiPublicKey = $config['apiPublicKey'];
-$checkoutEndpointSecret = $config['checkoutEndpointSecret'];
-$subscriptionEndpointSecret = $config['subscriptionEndpointSecret'];
-$priceId = $config['priceId'];
-$checkoutReturnUrl = $config['checkoutReturnUrl'];
-$portalReturnUrl = $config['portalReturnUrl'];
+$apiSecretKey = $_ENV['apiSecretKey'];
+$apiPublicKey = $_ENV['apiPublicKey'];
+$checkoutEndpointSecret = $_ENV['checkoutEndpointSecret'];
+$subscriptionEndpointSecret = $_ENV['subscriptionEndpointSecret'];
+$priceId = $_ENV['priceId'];
+$checkoutReturnUrl = $_ENV['checkoutReturnUrl'];
+$portalReturnUrl = $_ENV['portalReturnUrl'];
 
 // Set up logging
 $log = new Logger('stripe-checkout-facade-demo-app');
@@ -29,9 +30,9 @@ $log->pushHandler(new StreamHandler('/tmp/stripe-checkout-facade-demo-app.log', 
 
 try{
     // Parse customer ID type and value from config
-    $customerIdentification = match( $config['customerIdMode'] ){
-        'email' => CustomerEmailOrId::email($config['customerEmail']),
-        'id' => CustomerEmailOrId::stripeCustomerId($config['customerId']),
+    $customerIdentification = match( $_ENV['customerIdMode'] ){
+        'email' => CustomerEmailOrId::email($_ENV['customerEmail']),
+        'id' => CustomerEmailOrId::stripeCustomerId($_ENV['customerId']),
         default => throw new Exception("Invalid customerIdMode in config")
     };
     

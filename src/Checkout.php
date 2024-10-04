@@ -25,6 +25,7 @@ use PatternSeek\StripeCheckoutFacade\ValueTypes\SubscriptionInformation;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\SubscriptionWebhookResponse;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\WebhookResponse;
 use Psr\Log\LoggerInterface;
+use Stripe\Checkout\Session;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
@@ -56,10 +57,11 @@ class Checkout
      * @param CheckoutLocale $locale
      * @param bool $useStripeTax
      * @param string $returnUrl
+     * @param bool $returnFullSession
      * @return string Client secret
      * @throws Exception
      */
-    public function createCheckoutSession( CustomerEmailOrId $customeridentification, array $lineItems, CheckoutMode $mode, CheckoutLocale $locale, bool $useStripeTax, string $returnUrl ): string
+    public function createCheckoutSession( CustomerEmailOrId $customeridentification, array $lineItems, CheckoutMode $mode, CheckoutLocale $locale, bool $useStripeTax, string $returnUrl, bool $returnFullSession = false ): string|Session
     {
         try{
             if( false === mb_strstr( $returnUrl, '{CHECKOUT_SESSION_ID}' ) ){
@@ -91,7 +93,11 @@ class Checkout
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
-        return $session->client_secret;
+        if( $returnFullSession ){
+            return $session;
+        }else{
+            return $session->client_secret;           
+        }
     }
 
     /**
