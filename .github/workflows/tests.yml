@@ -51,6 +51,9 @@ jobs:
       - name: Run server and tests
         shell: bash
         run: |
+          ls -alh
+          ls -alh demo-app
+          ls -alh vendor
           docker run -d --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
           sleep 5
           cd demo-app 
