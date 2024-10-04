@@ -9,22 +9,26 @@ on:
       - '*' # on new tags 
   workflow_dispatch: # manual
 
+
+env:
+  apiSecretKey: ${{ secrets.APISECRETKEY }}
+  apiPublicKey: ${{ secrets.APIPUBLICKEY }}
+  checkoutEndpointSecret: ${{ secrets.CHECKOUTENDPOINTSECRET }}
+  subscriptionEndpointSecret: ${{ secrets.SUBSCRIPTIONENDPOINTSECRET }}
+  priceId: ${{ secrets.PRICEID }}
+  checkoutReturnUrl: "http://127.0.0.1:4242/?route: returnPage&sessionId: {CHECKOUT_SESSION_ID}"
+  portalReturnUrl: http://127.0.0.1:4242/
+  # email or id
+  customerIdMode: email
+  customerEmail: ${{ secrets.CUSTOMEREMAIL }}
+  customerId: ${{ secrets.CUSTOMERID }}
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
     
-#    services:
-#      selenium:
-#        image: selenium/standalone-chrome:latest
-#        # Map port 8080 on the Docker host to port 80 on the nginx container
-#        ports:
-#          - 4444:4444
-#          - 7900:7900
-#        options: "--shm-size=2g --add-host=host.docker.internal:host-gateway"
-    
     steps:
-      # Check out target branch to generate phpstan baseline 
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.base_ref }}
@@ -33,8 +37,6 @@ jobs:
         with:
           php-version: '8.2'
           tools: pecl
-#          extensions: protobuf, apcu
-#          coverage: xdebug
 
       - name: Cache Composer packages
         id: composer-cache-target
