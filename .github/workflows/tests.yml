@@ -14,14 +14,14 @@ jobs:
 
     runs-on: ubuntu-latest
     
-    services:
-      selenium:
-        image: selenium/standalone-chrome:latest
-        # Map port 8080 on the Docker host to port 80 on the nginx container
-        ports:
-          - 4444:4444
-          - 7900:7900
-        options: "--shm-size=2g --add-host=host.docker.internal:host-gateway"
+#    services:
+#      selenium:
+#        image: selenium/standalone-chrome:latest
+#        # Map port 8080 on the Docker host to port 80 on the nginx container
+#        ports:
+#          - 4444:4444
+#          - 7900:7900
+#        options: "--shm-size=2g --add-host=host.docker.internal:host-gateway"
     
     steps:
       # Check out target branch to generate phpstan baseline 
@@ -33,8 +33,8 @@ jobs:
         with:
           php-version: '8.2'
           tools: pecl
-          extensions: protobuf, apcu
-          coverage: xdebug
+#          extensions: protobuf, apcu
+#          coverage: xdebug
 
       - name: Cache Composer packages
         id: composer-cache-target
@@ -47,3 +47,12 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-progress
+        
+      - name: Run server and tests
+        run: |
+          docker run -d --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
+          && sleep 5
+          && cd demo-app 
+          && php -S 0.0.0.0:4242 --docroot=web & 
+          && cd .. 
+          && ./vendor/bin/phpunit tests
