@@ -10,18 +10,7 @@ on:
   workflow_dispatch: # manual
 
 
-env:
-  apiSecretKey: ${{ secrets.APISECRETKEY }}
-  apiPublicKey: ${{ secrets.APIPUBLICKEY }}
-  checkoutEndpointSecret: ${{ secrets.CHECKOUTENDPOINTSECRET }}
-  subscriptionEndpointSecret: ${{ secrets.SUBSCRIPTIONENDPOINTSECRET }}
-  priceId: ${{ secrets.PRICEID }}
-  checkoutReturnUrl: "http://127.0.0.1:4242/?route: returnPage&sessionId: {CHECKOUT_SESSION_ID}"
-  portalReturnUrl: http://127.0.0.1:4242/
-  # email or id
-  customerIdMode: email
-  customerEmail: ${{ secrets.CUSTOMEREMAIL }}
-  customerId: ${{ secrets.CUSTOMERID }}
+
 
 jobs:
   build:
@@ -51,6 +40,18 @@ jobs:
         run: composer install --no-progress
         
       - name: Run server and tests
+        env:
+          apiSecretKey: ${{ secrets.APISECRETKEY }}
+          apiPublicKey: ${{ secrets.APIPUBLICKEY }}
+          checkoutEndpointSecret: ${{ secrets.CHECKOUTENDPOINTSECRET }}
+          subscriptionEndpointSecret: ${{ secrets.SUBSCRIPTIONENDPOINTSECRET }}
+          priceId: ${{ secrets.PRICEID }}
+          checkoutReturnUrl: "http://127.0.0.1:4242/?route: returnPage&sessionId: {CHECKOUT_SESSION_ID}"
+          portalReturnUrl: http://127.0.0.1:4242/
+          # email or id
+          customerIdMode: email
+          customerEmail: ${{ secrets.CUSTOMEREMAIL }}
+          customerId: ${{ secrets.CUSTOMERID }}
         shell: bash
         run: |
           ls -alh
