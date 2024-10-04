@@ -13,8 +13,11 @@ use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
 use Psr\Log\LoggerInterface;
 
 // Config via dotenv
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->safeLoad();
+// Doesn't seem to respect actual env if the file doesn't exist so I'm adding this conditional
+if( file_exists(__DIR__.'/../.env')) {
+    $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
+    $dotenv->safeLoad();
+}
 
 $apiSecretKey = $_ENV['apiSecretKey'];
 $apiPublicKey = $_ENV['apiPublicKey'];
