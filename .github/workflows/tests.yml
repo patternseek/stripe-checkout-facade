@@ -58,6 +58,6 @@ jobs:
           sleep 5
           cd demo-app 
           composer install --no-progress
-          php -S 0.0.0.0:4242 --docroot=web & 
+          php -d variables_order=EGPCS -S 0.0.0.0:4242 --docroot=web & 
           cd .. 
           ./vendor/bin/phpunit tests
