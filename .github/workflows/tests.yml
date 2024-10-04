@@ -49,10 +49,11 @@ jobs:
         run: composer install --no-progress
         
       - name: Run server and tests
+        shell: bash
         run: |
           docker run -d --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
-          && sleep 5
-          && cd demo-app 
-          && php -S 0.0.0.0:4242 --docroot=web & 
-          && cd .. 
-          && ./vendor/bin/phpunit tests
+          sleep 5
+          cd demo-app 
+          php -S 0.0.0.0:4242 --docroot=web & 
+          cd .. 
+          ./vendor/bin/phpunit tests
