@@ -54,6 +54,7 @@ jobs:
           customerId: ${{ secrets.CUSTOMERID }}
         shell: bash
         run: |
+          echo $apiSecretKey
           ls -alh
           ls -alh demo-app
           ls -alh vendor
