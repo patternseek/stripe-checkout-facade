@@ -61,3 +61,9 @@ jobs:
           php -d variables_order=EGPCS -S 0.0.0.0:4242 --docroot=web & 
           cd .. 
           ./vendor/bin/phpunit tests
+
+      - name: Upload failure screenshots if appropriate
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium_screenshots
+          path: /tmp/*.png

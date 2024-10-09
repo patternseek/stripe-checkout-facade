@@ -157,102 +157,104 @@ class CheckoutSeleniumTest extends TestCase
         bool $vatShouldBeNonZero
     ): void{
 
-        $billingName = "Just Some Guy You Know";
+        try{
+            $billingName = "Just Some Guy You Know";
 
-        $checkoutFrameCss = '#checkout > iframe';
-        $cardId = 'cardNumber';
-        $cardExpId = 'cardExpiry';
-        $cardCvcId = 'cardCvc';
-        $billingNameId = 'billingName';
-        $billingCountryId = 'billingCountry'; // (select)
-        $billingPostalCodeId = 'billingPostalCode';
-        $vatSelectorNonZero = '.OrderDetailsSubtotalItem > div:nth-child(2) > span:nth-child(1) > span:nth-child(1)';
-        $vatSelectorZero = '.Link--secondary > span:nth-child(1) > span:nth-child(1)';
-        $manageBillingButtonCss = 'body > form:nth-child(3) > button:nth-child(1)';
-        $manageBillingCountryFieldCss = 'div.Margin-top--24:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > address:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)';
-        
-        
-                        
-        $t = $this->tools;
+            $checkoutFrameCss = '#checkout > iframe';
+            $cardId = 'cardNumber';
+            $cardExpId = 'cardExpiry';
+            $cardCvcId = 'cardCvc';
+            $billingNameId = 'billingName';
+            $billingCountryId = 'billingCountry'; // (select)
+            $billingPostalCodeId = 'billingPostalCode';
+            $vatSelectorNonZero = '.OrderDetailsSubtotalItem > div:nth-child(2) > span:nth-child(1) > span:nth-child(1)';
+            $vatSelectorZero = '.Link--secondary > span:nth-child(1) > span:nth-child(1)';
+            $manageBillingButtonCss = 'body > form:nth-child(3) > button:nth-child(1)';
+            $manageBillingCountryFieldCss = 'div.Margin-top--24:nth-child(3) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > address:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1)';
 
-        $this->driver->get("http://host.docker.internal:4242/");
+            $t = $this->tools;
 
-        $t->waitForCss($checkoutFrameCss);
-        $this->driver->switchTo()->frame($t->getElementByCSS($checkoutFrameCss));
+            $this->driver->get("http://host.docker.internal:4242/");
 
-        $t->waitForId($cardId);
-        $t->typeInAtId($cardId, $cardNumber);
-        $t->typeInAtId($cardExpId, $expiry);
-        $t->typeInAtId($cardCvcId, "123");
+            $t->waitForCss($checkoutFrameCss);
+            $this->driver->switchTo()->frame($t->getElementByCSS($checkoutFrameCss));
 
-        $t->typeInAtId($billingNameId, $billingName);
-        $t->pickFromSelectAtElement($t->getElementById($billingCountryId), $billingCountryCode);
+            $t->waitForId($cardId);
+            $t->typeInAtId($cardId, $cardNumber);
+            $t->typeInAtId($cardExpId, $expiry);
+            $t->typeInAtId($cardCvcId, "123");
 
-        if (null !== $billingPostalCode) {
-            $t->typeInAtId($billingPostalCodeId, $billingPostalCode);
-        }
+            $t->typeInAtId($billingNameId, $billingName);
+            $t->pickFromSelectAtElement($t->getElementById($billingCountryId), $billingCountryCode);
 
-        // Verify VAT
-        if( $vatShouldBeNonZero ){
-            $t->waitForCss($vatSelectorNonZero);
-            sleep(4);
-            $vatElText = $t->getElementByCSS($vatSelectorNonZero)->getText();
-            $this->assertTrue(
-                (false === stristr($vatElText, "£0.00") )
-            );
-        }else{
-            $t->waitForCss($vatSelectorZero);
-            sleep(1);
-            $vatElText = $t->getElementByCSS($vatSelectorZero)->getText();
-            $this->assertTrue(
-                is_string(stristr($vatElText, "£0.00"))
-            );
-        }
-        
-
-
-        $t->waitForClassVisible('SubmitButton--complete');
-        $t->clickAtClass('SubmitButton--complete');
-
-        // Handle 3D Secure auth 
-        if( $authShouldShow ){
-            
-            $this->driver->switchTo()->defaultContent();
-            $t->waitForCssVisible('iframe[name*="__privateStripeFrame"]');
-            $this->driver->switchTo()->frame($t->getElementByCSS('iframe[name*="__privateStripeFrame"]'));
-            $t->waitForIdVisible('challengeFrame');
-            $this->driver->switchTo()->frame($t->getElementById('challengeFrame'));
-            $t->waitForIdVisible('test-source-authorize-3ds');
-            if( $succeed3dAuth ){
-                //$t->clickAtId('test-source-authorize-3ds');
-            }else{
-                $t->clickAtId('test-source-fail-3ds');
-
-                // Frame switch
-                $this->driver->switchTo()->defaultContent();
-                $t->waitForCss($checkoutFrameCss);
-                $this->driver->switchTo()->frame($t->getElementByCSS($checkoutFrameCss));
-                
-                // Check for error
-                $t->waitForClassVisible('Notice-message');
-                $msg = $t->getElementByClass('Notice-message')->getText();
-                $this->assertStringContainsString('We are unable to authenticate your payment method.', $msg);
-                
-                return;
+            if (null !== $billingPostalCode) {
+                $t->typeInAtId($billingPostalCodeId, $billingPostalCode);
             }
-        }
 
-        // Parse session status
-        $this->driver->switchTo()->defaultContent();
-        $t->waitForCss(".resultText");
-        $bodyText = $t->getElementByCSS('body')->getText();
-        
-        $this->assertTrue(is_string( stristr( $bodyText, '[value] => complete') ), $bodyText );
-        $this->assertTrue(is_string( stristr( $bodyText, '[value] => paid') ), $bodyText);
-        
-        // Go to manage billing page
-        $t->clickAtCss($manageBillingButtonCss);
-        $t->waitForCssVisible('.Icon--business-svg');
+            // Verify VAT
+            if ($vatShouldBeNonZero) {
+                $t->waitForCss($vatSelectorNonZero);
+                sleep(4);
+                $vatElText = $t->getElementByCSS($vatSelectorNonZero)->getText();
+                $this->assertTrue(
+                    (false === stristr($vatElText, "£0.00"))
+                );
+            }else {
+                $t->waitForCss($vatSelectorZero);
+                sleep(1);
+                $vatElText = $t->getElementByCSS($vatSelectorZero)->getText();
+                $this->assertTrue(
+                    is_string(stristr($vatElText, "£0.00"))
+                );
+            }
+
+            $t->waitForClassVisible('SubmitButton--complete');
+            $t->clickAtClass('SubmitButton--complete');
+
+            // Handle 3D Secure auth 
+            if ($authShouldShow) {
+
+                $this->driver->switchTo()->defaultContent();
+                $t->waitForCssVisible('iframe[name*="__privateStripeFrame"]');
+                $this->driver->switchTo()->frame($t->getElementByCSS('iframe[name*="__privateStripeFrame"]'));
+                $t->waitForIdVisible('challengeFrame');
+                $this->driver->switchTo()->frame($t->getElementById('challengeFrame'));
+                $t->waitForIdVisible('test-source-authorize-3ds');
+                if ($succeed3dAuth) {
+                    //$t->clickAtId('test-source-authorize-3ds');
+                }else {
+                    $t->clickAtId('test-source-fail-3ds');
+
+                    // Frame switch
+                    $this->driver->switchTo()->defaultContent();
+                    $t->waitForCss($checkoutFrameCss);
+                    $this->driver->switchTo()->frame($t->getElementByCSS($checkoutFrameCss));
+
+                    // Check for error
+                    $t->waitForClassVisible('Notice-message');
+                    $msg = $t->getElementByClass('Notice-message')->getText();
+                    $this->assertStringContainsString('We are unable to authenticate your payment method.', $msg);
+
+                    return;
+                }
+            }
+
+            // Parse session status
+            $this->driver->switchTo()->defaultContent();
+            $t->waitForCss(".resultText");
+            $bodyText = $t->getElementByCSS('body')->getText();
+
+            $this->assertTrue(is_string(stristr($bodyText, '[value] => complete')), $bodyText);
+            $this->assertTrue(is_string(stristr($bodyText, '[value] => paid')), $bodyText);
+
+            // Go to manage billing page
+            $t->clickAtCss($manageBillingButtonCss);
+            $t->waitForCssVisible('.Icon--business-svg');
+        }catch (Exception $e ){
+            $filename = '/tmp/failure_'.uniqid().'.png';
+            $this->driver->takeScreenshot($filename);
+            throw new Exception("Exception while executing test. Screenshot saved to {$filename}.", 0, $e);
+        }
 
     }
 
