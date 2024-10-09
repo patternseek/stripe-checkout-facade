@@ -195,7 +195,7 @@ class CheckoutSeleniumTest extends TestCase
         // Verify VAT
         if( $vatShouldBeNonZero ){
             $t->waitForCss($vatSelectorNonZero);
-            sleep(1);
+            sleep(4);
             $vatElText = $t->getElementByCSS($vatSelectorNonZero)->getText();
             $this->assertTrue(
                 (false === stristr($vatElText, "£0.00") )
