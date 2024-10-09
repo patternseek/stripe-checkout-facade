@@ -63,6 +63,7 @@ jobs:
           ./vendor/bin/phpunit tests
 
       - name: Upload failure screenshots if appropriate
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: selenium_screenshots
