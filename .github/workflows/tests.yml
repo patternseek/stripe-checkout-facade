@@ -46,7 +46,7 @@ jobs:
           checkoutEndpointSecret: ${{ secrets.CHECKOUTENDPOINTSECRET }}
           subscriptionEndpointSecret: ${{ secrets.SUBSCRIPTIONENDPOINTSECRET }}
           priceId: ${{ secrets.PRICEID }}
-          checkoutReturnUrl: "http://127.0.0.1:4242/?route=returnPage&sessionId: {CHECKOUT_SESSION_ID}"
+          checkoutReturnUrl: "http://127.0.0.1:4242/?route=returnPage&sessionId={CHECKOUT_SESSION_ID}"
           portalReturnUrl: http://127.0.0.1:4242/
           # email or id
           customerIdMode: email
