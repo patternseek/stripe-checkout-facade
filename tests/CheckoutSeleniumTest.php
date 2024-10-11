@@ -54,6 +54,7 @@ class CheckoutSeleniumTest extends TestCase
         $host = "http://127.0.0.1:4444/wd/hub";
         $capabilities = DesiredCapabilities::chrome();
         $this->driver = RemoteWebDriver::create($host, $capabilities);
+        $this->driver->manage()->window()->fullscreen();
         $this->tools = new SeleniumLib($this->driver);
     }
 
