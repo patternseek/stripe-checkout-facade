@@ -54,7 +54,7 @@ jobs:
           customerId: ${{ secrets.CUSTOMERID }}
         shell: bash
         run: |
-          docker run -d -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
+          docker run -d -e SCREEN_WIDTH=1920 -e SCREEN_HEIGHT=1080 -e SCREEN_DEPTH=24 --shm-size="2g" --net=host --add-host=host.docker.internal:host-gateway selenium/standalone-chrome:latest
           sleep 5
           cd demo-app 
           composer install --no-progress
