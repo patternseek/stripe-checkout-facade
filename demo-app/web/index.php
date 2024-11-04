@@ -6,8 +6,8 @@ use Monolog\Level;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use PatternSeek\StripeCheckoutFacade\Checkout;
-use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutLocale;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutMode;
+use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionCreateParams;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
 use Psr\Log\LoggerInterface;
@@ -94,16 +94,13 @@ try{
 function checkoutStart( LoggerInterface $log, $apiPublicKey, $apiSecretKey, CustomerEmailOrId $customerIdentification, $priceId, $returnUrl ): string
 {
     $checkout = new Checkout($apiSecretKey, $log);
-    $sessionClientSecret = $checkout->createCheckoutSession(
-        customeridentification: $customerIdentification,
-        lineItems: [
-            new LineItem($priceId, 1)
-        ], 
-        mode: CheckoutMode::SubscriptionOrMixed, 
-        locale: CheckoutLocale::auto,
-        useStripeTax: true,
-        returnUrl: $returnUrl 
+    $createParams = new CheckoutSessionCreateParams(
+        customerIdentification: $customerIdentification,
+        mode: CheckoutMode::SubscriptionOrMixed,
+        returnUrl: $returnUrl
     );
+    $createParams->lineItems[] = new LineItem($priceId, 1);
+    $sessionClientSecret = $checkout->createCheckoutSession($createParams);
 
     ob_start();
     // uses $apiPublicKey and $sessionClientSecret

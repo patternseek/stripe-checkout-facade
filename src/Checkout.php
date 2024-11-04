@@ -13,12 +13,9 @@ declare(strict_types=1);
 namespace PatternSeek\StripeCheckoutFacade;
 
 use Exception;
-use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutLocale;
-use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutMode;
+use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionCreateParams;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerIdentifierType;
-use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
-use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionStatus;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionInformation;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionWebhookResponse;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\SubscriptionInformation;
@@ -26,7 +23,6 @@ use PatternSeek\StripeCheckoutFacade\ValueTypes\SubscriptionWebhookResponse;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\WebhookResponse;
 use Psr\Log\LoggerInterface;
 use Stripe\Checkout\Session;
-use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\SignatureVerificationException;
 use Stripe\StripeClient;
 use Stripe\Webhook;
@@ -51,53 +47,24 @@ class Checkout
     /**
      * Creates a session and returns the client secret as a string.
      *
-     * @param CustomerEmailOrId $customeridentification
-     * @param LineItem[] $lineItems
-     * @param CheckoutMode $mode
-     * @param CheckoutLocale $locale
-     * @param bool $useStripeTax
-     * @param string $returnUrl
-     * @param bool $returnFullSession
-     * @return string Client secret
-     * @throws Exception
+     * @param CheckoutSessionCreateParams $params            The parameters for creating the session.
+     * @param bool                        $returnFullSession If true, the full session object is returned instead of
+     *                                                       just the client secret.
+     * @return string|Session The client secret or the full session object.
      */
-    public function createCheckoutSession( CustomerEmailOrId $customeridentification, array $lineItems, CheckoutMode $mode, CheckoutLocale $locale, bool $useStripeTax, string $returnUrl, bool $returnFullSession = false ): string|Session
-    {
-        try{
-            if( false === mb_strstr( $returnUrl, '{CHECKOUT_SESSION_ID}' ) ){
-                throw new Exception('returnUrl must contain {CHECKOUT_SESSION_ID} when calling Checkout::createSession(). See https://docs.stripe.com/payments/checkout/custom-redirect-behavior#return-url');
-            }
-            
-            $lineItemsAsArray = LineItem::objectArrayToStringArray( $lineItems );
-
-            $sessionSpec = [
-                'ui_mode' => 'embedded',
-                'line_items' => $lineItemsAsArray,
-                'mode' => $mode->value,
-                'locale' => $locale->value,
-                'return_url' => $returnUrl,
-                'automatic_tax' => [
-                    'enabled' => $useStripeTax,
-                ],
-            ];
-            
-            if ($customeridentification->type == CustomerIdentifierType::Email ){
-                $sessionSpec['customer_email'] = $customeridentification->value();
-            }else{
-                $sessionSpec['customer'] = $customeridentification->value();
-            }
-            
+    public function createCheckoutSession(
+        CheckoutSessionCreateParams $params,
+        bool $returnFullSession = false
+    ): string|Session {
+        try {
+            $sessionSpec = $params->toApiParams();
             $session = $this->stripe->checkout->sessions->create($sessionSpec);
-        }catch (Exception $e ){
+        } catch (\Throwable $e) {
             $this->log->alert($e->getMessage());
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw $e;
         }
 
-        if( $returnFullSession ){
-            return $session;
-        }else{
-            return $session->client_secret;           
-        }
+        return $returnFullSession ? $session : $session->client_secret;
     }
 
     /**
