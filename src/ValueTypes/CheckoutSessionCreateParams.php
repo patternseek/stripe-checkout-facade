@@ -29,6 +29,10 @@ class CheckoutSessionCreateParams
     public CheckoutLocale $locale = CheckoutLocale::auto;
     public bool $useStripeTax = true;
     public bool $allowPromotionCodes = true;
+    /**
+     * @var array<string,string>
+     */
+    public array $metadata = [];
 
     /**
      * Constructs a set of parameters for creating a Stripe Checkout session.
@@ -72,6 +76,12 @@ class CheckoutSessionCreateParams
             'mode' => $this->mode->value,
             'locale' => $this->locale->value,
             'return_url' => $this->returnUrl,
+            'invoice_creation' => [
+                'enabled' => true,
+            ],
+            'tax_id_collection' => [
+                'enabled' => true,
+            ],
         ];
         $paramKey = match ($this->customerIdentification->type) {
             CustomerIdentifierType::Email => 'customer_email',
@@ -83,6 +93,9 @@ class CheckoutSessionCreateParams
         }
         if ($this->allowPromotionCodes) {
             $params['allow_promotion_codes'] = true;
+        }
+        if (\count($this->metadata) > 0) {
+            $params['metadata'] = $this->metadata;
         }
 
         return $params;

@@ -78,7 +78,7 @@ class Checkout
     {
         try{
             $session = $this->stripe->checkout->sessions->retrieve( $sessionId, ['expand' => ['line_items']] );
-            $sessionInformation = new CheckoutSessionInformation( $session );
+            $sessionInformation = new CheckoutSessionInformation($session, $this->stripe);
         }catch (Exception $e ){
             $this->log->alert($e->getMessage());
             throw new Exception($e->getMessage(), $e->getCode(), $e);
@@ -145,7 +145,7 @@ class Checkout
                 // This is the happy path
                 return new CheckoutSessionWebhookResponse( 
                     new WebhookResponse( true, 200, ['success'=>true] ), 
-                    new CheckoutSessionInformation($event->data->object )
+                    new CheckoutSessionInformation($event->data->object, $this->stripe)
                 );
             }else{
                 $err = "Invalid webhook event for checkout session endpoint: Endpoint received {$event->type} event but only supports handling 'checkout.session.completed' and 'checkout.session.async_payment_succeeded'";
