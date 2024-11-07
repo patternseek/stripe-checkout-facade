@@ -76,9 +76,6 @@ class CheckoutSessionCreateParams
             'mode' => $this->mode->value,
             'locale' => $this->locale->value,
             'return_url' => $this->returnUrl,
-            'invoice_creation' => [
-                'enabled' => true,
-            ],
             'tax_id_collection' => [
                 'enabled' => true,
             ],
