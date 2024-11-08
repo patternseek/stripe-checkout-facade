@@ -29,6 +29,7 @@ class CheckoutSessionCreateParams
     public CheckoutLocale $locale = CheckoutLocale::auto;
     public bool $useStripeTax = true;
     public bool $allowPromotionCodes = true;
+    public bool $billingAddressRequired = false;
     /**
      * @var array<string,string>
      */
@@ -95,6 +96,9 @@ class CheckoutSessionCreateParams
         }
         if ($this->allowPromotionCodes) {
             $params['allow_promotion_codes'] = true;
+        }
+        if ($this->billingAddressRequired) {
+            $params['billing_address_collection'] = 'required';
         }
         if (\count($this->metadata) > 0) {
             $params['metadata'] = $this->metadata;
