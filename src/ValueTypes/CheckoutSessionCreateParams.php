@@ -79,6 +79,9 @@ class CheckoutSessionCreateParams
             'tax_id_collection' => [
                 'enabled' => true,
             ],
+            'payment_intent_data' => [
+                'setup_future_usage' => 'off_session',
+            ],
         ];
         $paramKey = match ($this->customerIdentification->type) {
             CustomerIdentifierType::Email => 'customer_email',
