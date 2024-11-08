@@ -36,10 +36,11 @@ class Customer
     public function lookupCustomerByEmail(string $email): ?StripeCustomer
     {
         $searchResult = $this->stripe->customers->search(['query' => \sprintf('email:"%s"', $email)]);
-        if ($searchResult->total_count === 0) {
+        $count = \count($searchResult->data);
+        if ($count === 0) {
             return null;
         }
-        if ($searchResult->total_count > 1) {
+        if ($count > 1) {
             $this->log->warning(\sprintf('Multiple Stripe customers found for email %s', $email));
         }
         return $searchResult->data[0];
