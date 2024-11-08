@@ -79,6 +79,11 @@ class CheckoutSessionCreateParams
             'tax_id_collection' => [
                 'enabled' => true,
             ],
+            'customer_update' => [
+                'address' => 'auto',
+                'name' => 'auto',
+                'shipping' => 'auto',
+            ],
         ];
         $paramKey = match ($this->customerIdentification->type) {
             CustomerIdentifierType::Email => 'customer_email',
