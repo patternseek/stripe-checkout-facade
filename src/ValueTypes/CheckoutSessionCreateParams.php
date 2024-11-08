@@ -80,17 +80,19 @@ class CheckoutSessionCreateParams
             'tax_id_collection' => [
                 'enabled' => true,
             ],
-            'customer_update' => [
-                'address' => 'auto',
-                'name' => 'auto',
-                'shipping' => 'auto',
-            ],
         ];
         $paramKey = match ($this->customerIdentification->type) {
             CustomerIdentifierType::Email => 'customer_email',
             CustomerIdentifierType::StripeCustomerId => 'customer',
         };
         $params[$paramKey] = $this->customerIdentification->value();
+        if ($this->customerIdentification->type === CustomerIdentifierType::StripeCustomerId) {
+            $params['customer_update'] = [
+                'address' => 'auto',
+                'name' => 'auto',
+                'shipping' => 'auto',
+            ];
+        }
         if ($this->useStripeTax) {
             $params['automatic_tax'] = ['enabled' => true];
         }
