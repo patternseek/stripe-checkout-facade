@@ -46,20 +46,25 @@ class CheckoutSessionInformation
         $this->session = $session;
         $this->invoice = self::resolveStripeObject(
             $session->invoice,
-            static fn (string $id) => $stripe->invoices->retrieve($id)
+            static fn(string $id) => $stripe->invoices->retrieve($id)
         );
         $this->subscription = self::resolveStripeObject(
             $session->subscription,
-            static fn (string $id) => $stripe->subscriptions->retrieve($id)
+            static fn(string $id) => $stripe->subscriptions->retrieve($id, ['expand' => ['default_payment_method']])
         );
         $this->customer = self::resolveStripeObject(
             $session->customer,
-            static fn (string $id) => $stripe->customers->retrieve($id)
+            static fn(string $id) => $stripe->customers->retrieve($id)
         );
-        $this->paymentMethod = self::resolveStripeObject(
-            $session->payment_intent?->payment_method,
-            static fn (string $id) => $stripe->paymentMethods->retrieve($id)
-        );
+
+        if ($this->subscription !== null) {
+            $this->subscription->default_payment_method = self::resolveStripeObject(
+                $this->subscription->default_payment_method,
+                static fn(string $id) => $stripe->paymentMethods->retrieve($id)
+            );
+        }
+
+        $this->paymentMethod = $this->subscription?->default_payment_method;
         $this->status = CheckoutSessionStatus::fromString($session->status);
         $this->paymentStatus = CheckoutSessionPaymentStatus::fromString($session->payment_status);
         // $session->customer_email is only populated if it was passed as the customer identifier in session creation
