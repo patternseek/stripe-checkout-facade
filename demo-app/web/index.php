@@ -100,7 +100,8 @@ function checkoutStart( LoggerInterface $log, $apiPublicKey, $apiSecretKey, Cust
         mode: CheckoutMode::SubscriptionOrMixed,
         returnUrl: $returnUrl,
         useStripeTax: true,
-        billingAddressRequired: true,
+        billingAddressRequired: false,
+        allowPromotionCodes: false,
         lineItems: [new LineItem($priceId, 1)],
         locale: CheckoutLocale::auto
     );

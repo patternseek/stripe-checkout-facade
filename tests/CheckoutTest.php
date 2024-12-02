@@ -55,6 +55,7 @@ class CheckoutTest extends TestCase
             returnUrl: $this->config[ 'checkoutReturnUrl' ], 
             useStripeTax: true, 
             billingAddressRequired: true,
+            allowPromotionCodes: true,
             lineItems: [new LineItem($this->config[ 'priceId' ], 1)], 
             locale: CheckoutLocale::auto
         );
@@ -75,6 +76,7 @@ class CheckoutTest extends TestCase
             returnUrl: $this->config['checkoutReturnUrl'],
             useStripeTax: true,
             billingAddressRequired: true,
+            allowPromotionCodes: true,
             lineItems: [new LineItem($this->config[ 'priceId' ], 1)],
             locale: CheckoutLocale::auto
         );
@@ -96,6 +98,7 @@ class CheckoutTest extends TestCase
             returnUrl: 'http://url.without.return.page.com/',
             useStripeTax: true,
             billingAddressRequired: true,
+            allowPromotionCodes: true,
             lineItems: [new LineItem($this->config[ 'priceId' ], 1)],
             locale: CheckoutLocale::auto
         );
@@ -116,6 +119,7 @@ class CheckoutTest extends TestCase
             returnUrl: $this->config['checkoutReturnUrl'],
             useStripeTax: true,
             billingAddressRequired: true,
+            allowPromotionCodes: true,
             lineItems: [new LineItem("INVALID PRICE ID", 1)],
             locale: CheckoutLocale::auto
         );

@@ -16,7 +16,7 @@
 <?php
 if( $sessionInfo->readyForFulfilment() ){
 ?>
-    <form method="POST" action="/?route=redirectToCustomerPortal&customerId=<?=$sessionInfo->customer?>">
+    <form method="POST" action="/?route=redirectToCustomerPortal&customerId=<?=$sessionInfo->customerId?>">
         <button type="submit">Manage billing</button>
     </form>
 <?php

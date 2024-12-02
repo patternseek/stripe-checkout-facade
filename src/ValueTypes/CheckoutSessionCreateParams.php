@@ -55,6 +55,8 @@ class CheckoutSessionCreateParams
         string $returnUrl,
         bool $useStripeTax,
         bool $billingAddressRequired,
+        bool $allowPromotionCodes,
+        
         array $lineItems,
         CheckoutLocale $locale
     )
@@ -70,6 +72,7 @@ class CheckoutSessionCreateParams
         $this->returnUrl = $returnUrl;
         $this->useStripeTax = $useStripeTax;
         $this->billingAddressRequired = $billingAddressRequired;
+        $this->allowPromotionCodes = $allowPromotionCodes;
         $this->lineItems = $lineItems;
         $this->locale = $locale;
     }
