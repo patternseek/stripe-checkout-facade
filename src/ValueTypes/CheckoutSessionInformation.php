@@ -33,6 +33,27 @@ class CheckoutSessionInformation
     public readonly ?string $subscriptionId;
 
     /**
+     * Disable get of non-existent properties.
+     * @param $property
+     * @throws \Exception
+     */
+    public function __get( $property )
+    {
+        throw new \Exception( "Non-existent property {$property} get in " . get_class( $this ) );
+    }
+
+    /**
+     * Disable set of non-existent properties.
+     * @param $property
+     * @param $value
+     * @throws \Exception
+     */
+    public function __set( $property, $value )
+    {
+        throw new \Exception( "Non-existent property {$property} set in " . get_class( $this ) );
+    }
+    
+    /**
      * @param \Stripe\Checkout\Session $session
      * @throws 
      * @noinspection PhpFullyQualifiedNameUsageInspection
