@@ -40,19 +40,21 @@ class Utilities
     {
         $searchResult = $this->stripe->customers->search(['query' => \sprintf('email:"%s"', $email)]);
         $count = \count($searchResult->data);
-        if ($count === 0) {
-            return null;
-        }
+
         if ($count > 1) {
             $this->log->warning(\sprintf('Multiple Stripe customers found for email %s', $email));
         }
-        $stripeCustomer = $searchResult->data[0];
 
-        if ($stripeCustomer === null) {
-            $customerIdentification = CustomerEmailOrId::email($email);
-        } else {
+
+        if ($count === 1) {
+            $stripeCustomer = $searchResult->data[0];
             $customerIdentification = CustomerEmailOrId::stripeCustomerId($stripeCustomer->id);
+        }else{
+            $customerIdentification = CustomerEmailOrId::email($email);
         }
+
+        return $customerIdentification;
+
     }
     
     public function getSession(string $sessionId) : Session
