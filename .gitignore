@@ -2,3 +2,11 @@
 /vendor/
 /demo-app/.env
 /tests/.env
+/.idea/encodings.xml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/php.xml
+/.idea/phpunit.xml
+/.idea/stripe-checkout-facade.iml
+/.idea/vcs.xml
+/.idea/workspace.xml
