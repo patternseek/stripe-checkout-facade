@@ -41,10 +41,13 @@ class LineItem
     public static function objectArrayToStringArray(array $lineItems): array
     {
         if(count($lineItems) < 1){
-            throw new Exception("Empty array passed to LineItem::arrayToPrimitives()");
+            throw new Exception("Empty array passed to LineItem::objectArrayToStringArray()");
         }
         $out = [];
         foreach ($lineItems as $lineItem){
+            if( !( $lineItem instanceof LineItem ) ){
+                throw new Exception("Array passed to LineItem::objectArrayToStringArray() must only contain LineItems");
+            }
             $out[] = ['price' => $lineItem->priceId, 'quantity' => $lineItem->quantity];
         }
         return $out;
