@@ -17,13 +17,12 @@ use Monolog\Handler\TestHandler;
 use PatternSeek\StripeCheckoutFacade\Checkout;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutLocale;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutMode;
+use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionCreateParams;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
 use PHPUnit\Framework\TestCase;
 use Monolog\Level;
 use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Stripe\Checkout\Session;
 
 class CheckoutTest extends TestCase
 {
@@ -44,42 +43,44 @@ class CheckoutTest extends TestCase
     }
 
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function testCreateCheckoutSessionSuccessCustomerEmail()
     {
 
         $checkout = new Checkout($this->config['apiSecretKey'], $this->log);
-        $sessionClientSecret = $checkout->createCheckoutSession(
-            customeridentification: CustomerEmailOrId::email($this->config['customerEmail']),
-            lineItems: [
-                new LineItem($this->config['priceId'], 1)
-            ],
+        $createParams = new CheckoutSessionCreateParams(
+            customerIdentification: CustomerEmailOrId::email($this->config[ 'customerEmail' ]),
             mode: CheckoutMode::SubscriptionOrMixed,
-            locale: CheckoutLocale::auto,
-            useStripeTax: true,
-            returnUrl: $this->config['checkoutReturnUrl']
+            returnUrl: $this->config[ 'checkoutReturnUrl' ], 
+            useStripeTax: true, 
+            billingAddressRequired: true,
+            allowPromotionCodes: true,
+            lineItems: [new LineItem($this->config[ 'priceId' ], 1)], 
+            locale: CheckoutLocale::auto
         );
+        $sessionClientSecret = $checkout->createCheckoutSession($createParams);
         $this->assertNotEmpty($sessionClientSecret);
     }
 
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function testCreateCheckoutSessionSuccessCustomerId()
     {
 
         $checkout = new Checkout($this->config['apiSecretKey'], $this->log);
-        $sessionClientSecret = $checkout->createCheckoutSession(
-            customeridentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
-            lineItems: [
-                new LineItem($this->config['priceId'], 1)
-            ],
+        $createParams = new CheckoutSessionCreateParams(
+            customerIdentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
             mode: CheckoutMode::SubscriptionOrMixed,
-            locale: CheckoutLocale::auto,
+            returnUrl: $this->config['checkoutReturnUrl'],
             useStripeTax: true,
-            returnUrl: $this->config['checkoutReturnUrl']
+            billingAddressRequired: true,
+            allowPromotionCodes: true,
+            lineItems: [new LineItem($this->config[ 'priceId' ], 1)],
+            locale: CheckoutLocale::auto
         );
+        $sessionClientSecret = $checkout->createCheckoutSession($createParams);
         $this->assertNotEmpty($sessionClientSecret);
     }
 
@@ -91,38 +92,38 @@ class CheckoutTest extends TestCase
         $this->expectException(Exception::class);
         
         $checkout = new Checkout($this->config['apiSecretKey'], $this->log);
-        $sessionClientSecret = $checkout->createCheckoutSession(
-            customeridentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
-            lineItems: [
-                new LineItem($this->config['priceId'], 1)
-            ],
+        $createParams = new CheckoutSessionCreateParams(
+            customerIdentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
             mode: CheckoutMode::SubscriptionOrMixed,
-            locale: CheckoutLocale::auto,
+            returnUrl: 'http://url.without.return.page.com/',
             useStripeTax: true,
-            returnUrl: "http://url.without.return.page.com/"
+            billingAddressRequired: true,
+            allowPromotionCodes: true,
+            lineItems: [new LineItem($this->config[ 'priceId' ], 1)],
+            locale: CheckoutLocale::auto
         );
-        
+        $checkout->createCheckoutSession($createParams);
     }
 
     /**
-     * @throws Exception
+     * @throws \Throwable
      */
     public function testCreateCheckoutSessionInvalidPrice()
     {
         $this->expectException(Exception::class);
 
         $checkout = new Checkout($this->config['apiSecretKey'], $this->log);
-        $sessionClientSecret = $checkout->createCheckoutSession(
-            customeridentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
-            lineItems: [
-                new LineItem("INVALID PRICE ID", 1)
-            ],
+        $createParams = new CheckoutSessionCreateParams(
+            customerIdentification: CustomerEmailOrId::stripeCustomerId($this->config['customerId']),
             mode: CheckoutMode::SubscriptionOrMixed,
-            locale: CheckoutLocale::auto,
+            returnUrl: $this->config['checkoutReturnUrl'],
             useStripeTax: true,
-            returnUrl: $this->config['checkoutReturnUrl']
+            billingAddressRequired: true,
+            allowPromotionCodes: true,
+            lineItems: [new LineItem("INVALID PRICE ID", 1)],
+            locale: CheckoutLocale::auto
         );
-
+        $checkout->createCheckoutSession($createParams);
     }
 
     

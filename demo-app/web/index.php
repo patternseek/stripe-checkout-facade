@@ -8,6 +8,7 @@ use Monolog\Handler\StreamHandler;
 use PatternSeek\StripeCheckoutFacade\Checkout;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutLocale;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutMode;
+use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionCreateParams;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\LineItem;
 use Psr\Log\LoggerInterface;
@@ -89,21 +90,22 @@ try{
  * @param $priceId
  * @param $returnUrl
  * @return string
- * @throws Exception
+ * @throws Throwable
  */
 function checkoutStart( LoggerInterface $log, $apiPublicKey, $apiSecretKey, CustomerEmailOrId $customerIdentification, $priceId, $returnUrl ): string
 {
     $checkout = new Checkout($apiSecretKey, $log);
-    $sessionClientSecret = $checkout->createCheckoutSession(
-        customeridentification: $customerIdentification,
-        lineItems: [
-            new LineItem($priceId, 1)
-        ], 
-        mode: CheckoutMode::SubscriptionOrMixed, 
-        locale: CheckoutLocale::auto,
+    $createParams = new CheckoutSessionCreateParams(
+        customerIdentification: $customerIdentification,
+        mode: CheckoutMode::SubscriptionOrMixed,
+        returnUrl: $returnUrl,
         useStripeTax: true,
-        returnUrl: $returnUrl 
+        billingAddressRequired: false,
+        allowPromotionCodes: false,
+        lineItems: [new LineItem($priceId, 1)],
+        locale: CheckoutLocale::auto
     );
+    $sessionClientSecret = $checkout->createCheckoutSession($createParams);
 
     ob_start();
     // uses $apiPublicKey and $sessionClientSecret
@@ -181,7 +183,7 @@ function sessionWebhookEndpoint( LoggerInterface $log, $apiSecretKey, $endpointS
         // and by the subscription webhook handler. However the difference between this handler and
         // the subscription handler is that if you have non-subscription items they can be fulfilled
         // here and in the return page ***
-        $log->info("Fulfilled checkout session {$webhookResponse->sessionInformation->sessionId} for customer {$webhookResponse->sessionInformation->customer} with email {$webhookResponse->sessionInformation->customerEmail}");
+        $log->info("Fulfilled checkout session {$webhookResponse->sessionInformation->session->id} for customer {$webhookResponse->sessionInformation->customer->id} with email {$webhookResponse->sessionInformation->customerEmail}");
     }else{
         $log->error("Fulfilment failure", [$webhookResponse]);
     }
