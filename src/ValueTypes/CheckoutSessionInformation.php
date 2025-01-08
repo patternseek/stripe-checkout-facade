@@ -14,7 +14,6 @@ namespace PatternSeek\StripeCheckoutFacade\ValueTypes;
 
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionPaymentStatus;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionStatus;
-use Stripe\Checkout\Session;
 use Stripe\Customer;
 use Stripe\Invoice;
 use Stripe\PaymentMethod;
@@ -24,51 +23,56 @@ use Stripe\Subscription;
 
 class CheckoutSessionInformation
 {
-    public readonly Session $session;
     public readonly CheckoutSessionStatus $status;
     public readonly CheckoutSessionPaymentStatus $paymentStatus;
-    public readonly ?string $customerEmail;
+    public readonly string $sessionId;
     public readonly array $metadata;
-    public readonly ?Customer $customer;
-    public readonly ?Invoice $invoice;
-    public readonly ?PaymentMethod $paymentMethod;
-    public readonly ?Subscription $subscription;
+    public readonly ?string $customerEmail;
+    public readonly ?string $customerId;
+    public readonly ?string $invoiceId;
+    public readonly ?string $subscriptionId;
 
     /**
-     * @param Session $session
+     * Disable get of non-existent properties.
+     * @param $property
+     * @throws \Exception
+     */
+    public function __get( $property )
+    {
+        throw new \Exception( "Non-existent property {$property} get in " . get_class( $this ) );
+    }
+
+    /**
+     * Disable set of non-existent properties.
+     * @param $property
+     * @param $value
+     * @throws \Exception
+     */
+    public function __set( $property, $value )
+    {
+        throw new \Exception( "Non-existent property {$property} set in " . get_class( $this ) );
+    }
+    
+    /**
+     * @param \Stripe\Checkout\Session $session
+     * @throws 
      * @noinspection PhpFullyQualifiedNameUsageInspection
      */
-    public function __construct(Session $session, StripeClient $stripe)
+    public function __construct( \Stripe\Checkout\Session $session )
     {
-        if ($session->line_items === null || $session->line_items->count() === 0) {
-            $session->line_items = $stripe->checkout->sessions->allLineItems($session->id);
+        // Setup mode not currently supported.
+        if( $session->mode == "setup" ){
+            throw new \Exception("Stripe Checkout Session setup mode is not supported.");
         }
-        $this->session = $session;
-        $this->invoice = self::resolveStripeObject(
-            $session->invoice,
-            static fn(string $id) => $stripe->invoices->retrieve($id)
-        );
-        $this->subscription = self::resolveStripeObject(
-            $session->subscription,
-            static fn(string $id) => $stripe->subscriptions->retrieve($id, ['expand' => ['default_payment_method']])
-        );
-        $this->customer = self::resolveStripeObject(
-            $session->customer,
-            static fn(string $id) => $stripe->customers->retrieve($id)
-        );
-
-        if ($this->subscription !== null) {
-            $this->subscription->default_payment_method = self::resolveStripeObject(
-                $this->subscription->default_payment_method,
-                static fn(string $id) => $stripe->paymentMethods->retrieve($id)
-            );
-        }
-
-        $this->paymentMethod = $this->subscription?->default_payment_method;
+        $this->sessionId = $session->id;
         $this->status = CheckoutSessionStatus::fromString($session->status);
         $this->paymentStatus = CheckoutSessionPaymentStatus::fromString($session->payment_status);
+        $this->invoiceId = self::getStripeObjectId( $session->invoice );
+        $this->subscriptionId = self::getStripeObjectId( $session->subscription );
+        $this->customerId = self::getStripeObjectId( $session->customer );
         // $session->customer_email is only populated if it was passed as the customer identifier in session creation
-        $email = $session->customer_details?->email ?? $this->customer?->email;
+        // customer_details is populated if not in setup mode, which we don't support currently.
+        $email = $session->customer_details->email;
         $this->customerEmail = $email;
         $this->metadata = $session->metadata?->toArray() ?? [];
     }
@@ -85,19 +89,20 @@ class CheckoutSessionInformation
     }
 
     /**
-     * Resolves a Stripe object from a string ID.
+     * Resolves a Stripe ID from a Stripe object or ID
      * @param null|string|StripeObject $value The value to resolve.
-     * @param callable $resolver The function to call to resolve the value ID.
-     * @return null|StripeObject The resolved object or null if the value was null.
+     * @return null|string The ID
      */
-    private static function resolveStripeObject(null|string|StripeObject $value, callable $resolver): ?StripeObject
+    private static function getStripeObjectId(null|string|StripeObject $value): ?string
     {
         if ($value === null) {
             return null;
         }
         if ($value instanceof StripeObject) {
-            return $value;
+            return $value->id;
         }
-        return $resolver($value);
+        return $value;
     }
+
+
 }

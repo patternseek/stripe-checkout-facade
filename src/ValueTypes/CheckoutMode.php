@@ -20,5 +20,6 @@ enum CheckoutMode: string
     case Payment = "payment";
     // https://docs.stripe.com/payments/checkout/how-checkout-works#mixed
     case SubscriptionOrMixed = "subscription";
-    case Setup = "setup";
+    // setup unsupported curently
+//    case Setup = "setup";
 }

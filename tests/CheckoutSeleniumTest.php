@@ -247,8 +247,8 @@ class CheckoutSeleniumTest extends TestCase
             $t->waitForCss(".resultText");
             $bodyText = $t->getElementByCSS('body')->getText();
 
-            $this->assertTrue(is_string(stristr($bodyText, '[value] => complete')), $bodyText);
-            $this->assertTrue(is_string(stristr($bodyText, '[value] => paid')), $bodyText);
+            $this->assertTrue(is_string(stristr($bodyText, '[value] => complete')), "received: ".$bodyText);
+            $this->assertTrue(is_string(stristr($bodyText, '[value] => paid')), "received: ".$bodyText);
 
             // Go to manage billing page
             $t->clickAtCss($manageBillingButtonCss);
@@ -256,7 +256,7 @@ class CheckoutSeleniumTest extends TestCase
         }catch (Exception $e ){
             $filename = '/tmp/failure_'.uniqid().'.png';
             $this->driver->takeScreenshot($filename);
-            throw new Exception("Exception while executing test. Screenshot saved to {$filename}.", 0, $e);
+            throw new Exception("Exception while executing test. Screenshot saved to {$filename}, original message: {$e->getMessage()}", 0, $e);
         }
 
     }
