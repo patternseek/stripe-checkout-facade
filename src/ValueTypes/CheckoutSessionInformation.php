@@ -14,12 +14,7 @@ namespace PatternSeek\StripeCheckoutFacade\ValueTypes;
 
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionPaymentStatus;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionStatus;
-use Stripe\Customer;
-use Stripe\Invoice;
-use Stripe\PaymentMethod;
-use Stripe\StripeClient;
 use Stripe\StripeObject;
-use Stripe\Subscription;
 
 class CheckoutSessionInformation
 {
