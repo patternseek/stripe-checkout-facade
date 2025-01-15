@@ -58,11 +58,7 @@ class Utilities
     
     public function getSession(string $sessionId) : Session
     {
-        $session = $this->stripe->checkout->sessions->retrieve($sessionId);
-        if ($session->line_items === null || $session->line_items->count() === 0) {
-            $session->line_items = $this->stripe->checkout->sessions->allLineItems($sessionId);
-        }
-        return $session;
+        return $this->stripe->checkout->sessions->retrieve($sessionId, ['expand' => ['line_items']]);
     }
 
     public function getSubscription(?string $subscriptionId) : ?Subscription
