@@ -45,7 +45,7 @@ class Utilities
         }
 
 
-        if ($count === 1) {
+        if ($count > 0) {
             $stripeCustomer = $searchResult->data[0];
             $customerIdentification = CustomerEmailOrId::stripeCustomerId($stripeCustomer->id);
         }else{
@@ -77,7 +77,7 @@ class Utilities
         return $this->stripe->customers->retrieve($customerId);
     }
 
-    public function getInvoice(string $invoiceId) : Invoice
+    public function getInvoice(string $invoiceId) : ?Invoice
     {
         if (null === $invoiceId) {
             return null;
