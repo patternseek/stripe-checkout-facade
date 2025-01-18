@@ -14,7 +14,7 @@
         }
     ],
     "require": {
-        "stripe/stripe-php": "^15.3",
+        "stripe/stripe-php": "^16.4",
         "ext-mbstring": "*",
         "ext-curl": "*",
         "ext-json": "*",

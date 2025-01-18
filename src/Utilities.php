@@ -12,13 +12,12 @@ declare(strict_types=1);
 
 namespace PatternSeek\StripeCheckoutFacade;
 
-use PatternSeek\StripeCheckoutFacade\ValueTypes\CheckoutSessionInformation;
 use PatternSeek\StripeCheckoutFacade\ValueTypes\CustomerEmailOrId;
 use Psr\Log\LoggerInterface;
 use Stripe\Checkout\Session;
 use Stripe\Customer as StripeCustomer;
+use Stripe\Invoice;
 use Stripe\StripeClient;
-use Stripe\StripeObject;
 use Stripe\Subscription;
 
 class Utilities
@@ -46,7 +45,7 @@ class Utilities
         }
 
 
-        if ($count === 1) {
+        if ($count > 0) {
             $stripeCustomer = $searchResult->data[0];
             $customerIdentification = CustomerEmailOrId::stripeCustomerId($stripeCustomer->id);
         }else{
@@ -59,7 +58,7 @@ class Utilities
     
     public function getSession(string $sessionId) : Session
     {
-        return $this->stripe->checkout->sessions->retrieve($sessionId);
+        return $this->stripe->checkout->sessions->retrieve($sessionId, ['expand' => ['line_items']]);
     }
 
     public function getSubscription(?string $subscriptionId) : ?Subscription
@@ -78,4 +77,11 @@ class Utilities
         return $this->stripe->customers->retrieve($customerId);
     }
 
+    public function getInvoice(string $invoiceId) : ?Invoice
+    {
+        if (null === $invoiceId) {
+            return null;
+        }
+        return $this->stripe->invoices->retrieve($invoiceId);
+    }
 }
